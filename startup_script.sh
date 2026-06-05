@@ -2,8 +2,8 @@
 
 echo "=== 1. Registering Red Hat Developer Subscription ==="
 
-read -p "Enter Red Hat Developer Username: " RH_USER
-read -sp "Enter Red Hat Developer Password: " RH_PASS
+read -p "Enter Red Hat Developer Username: " RH_USER < /dev/tty
+read -sp "Enter Red Hat Developer Password: " RH_PASS < /dev/tty
 echo ""
 
 echo "Registering system with subscription-manager..."
