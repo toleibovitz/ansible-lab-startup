@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "=== 1. Registering Red Hat Developer Subscription ==="
 
+echo "=== 1. Registering Red Hat Developer Subscription ==="
 read -p "Enter Red Hat Developer Username: " RH_USER < /dev/tty
 read -sp "Enter Red Hat Developer Password: " RH_PASS < /dev/tty
 echo ""
@@ -16,13 +16,17 @@ else
     exit 1
 fi
 
-echo "=== 2. Installing System Prerequisites ==="
+echo "=== 2. Installing System Prerequisites & Python 3.9 ==="
 sudo dnf clean all
-sudo dnf install python3 python3-pip git -y
+sudo dnf install python39 python39-pip git -y
 
-echo "=== 3. Creating Global Python Virtual Environment ==="
+echo "=== 3. Creating Global Python 3.9 Virtual Environment ==="
+
+rm -rf ~/.automation/venv
 mkdir -p ~/.automation
-python3 -m venv ~/.automation/venv
+
+
+python3.9 -m venv ~/.automation/venv
 source ~/.automation/venv/bin/activate
 
 echo "=== 4. Upgrading Pip & Installing Core Python Libraries ==="
@@ -38,7 +42,7 @@ if ! grep -q "source ~/.automation/venv/bin/activate" ~/.bashrc; then
 fi
 
 echo "===================================================================="
-echo " SYSTEM READY: Registered, Ansible and Cisco dependencies installed."
+echo " SYSTEM READY: Registered, Python 3.9 active, Ansible/Cisco installed."
 echo " You can now clone your project repositories anywhere on this node."
 echo " Run: 'source ~/.automation/venv/bin/activate' to start immediately."
 echo "===================================================================="
