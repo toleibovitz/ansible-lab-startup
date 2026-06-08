@@ -34,7 +34,7 @@ if subscription-manager identity >/dev/null 2>&1; then
 echo "System already registered."
 else
 
-```
+
 if [[ -z "$RH_USER" ]]; then
     read -p "Enter Red Hat Developer Username: " RH_USER
 fi
@@ -52,7 +52,7 @@ subscription-manager register \
     --auto-attach
 
 echo "Registration successful."
-```
+
 
 fi
 
