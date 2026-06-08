@@ -65,13 +65,7 @@ dnf makecache
 echo
 echo "=== 3. Installing Packages ==="
 
-dnf install -y 
-python39 
-python39-pip 
-python39-devel 
-git 
-gcc 
-libssh-devel
+dnf install -y python39 python39-pip python39-devel git gcc libssh-devel
 
 echo
 echo "=== 4. Creating Automation Virtual Environment ==="
@@ -94,11 +88,7 @@ python -m pip install --upgrade pip
 echo
 echo "=== 6. Installing Python Libraries ==="
 
-pip install 
-ansible 
-paramiko 
-secure-cookie 
-ansible-pylibssh
+pip install ansible paramiko secure-cookie ansible-pylibssh
 
 echo
 echo "=== 7. Installing Cisco Collection ==="
