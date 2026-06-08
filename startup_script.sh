@@ -1,21 +1,33 @@
 #!/bin/bash
 
+RH_USER="${RH_USER:-}"
+RH_PASS="${RH_PASS:-}"
 
 echo "=== 1. Registering Red Hat Developer Subscription ==="
 
-read -p "Enter Red Hat Developer Username: " RH_USER < /dev/tty
-read -sp "Enter Red Hat Developer Password: " RH_PASS < /dev/tty
-echo ""
+if [ -z "$RH_USER" ]; then
+    read -p "Enter Red Hat Developer Username: " RH_USER
+fi
+
+if [ -z "$RH_PASS" ]; then
+    read -s -p "Enter Red Hat Developer Password: " RH_PASS
+    echo
+fi
 
 echo "Registering system with subscription-manager..."
-sudo subscription-manager register --username "$RH_USER" --password "$RH_PASS" --auto-attach
-
-if [ $? -eq 0 ]; then
+if sudo subscription-manager identity >/dev/null 2>&1; then
+    echo "System already registered."
+elif sudo subscription-manager register \
+        --username "$RH_USER" \
+        --password "$RH_PASS" \
+        --auto-attach
+then
     echo "SUCCESS: System registered and entitlements attached."
 else
-    echo "ERROR: Subscription registration failed. Checking internet connectivity or credentials."
+    echo "ERROR: Subscription registration failed."
     exit 1
 fi
+
 
 echo "=== 2. Installing System Prerequisites, Compilers, & Python 3.9 ==="
 sudo dnf clean all
