@@ -1,63 +1,133 @@
 #!/bin/bash
 
+set -euo pipefail
+
+echo "===================================================================="
+echo " RHEL Automation Node Bootstrap"
+echo "===================================================================="
+
+#
+
+# Ensure we are root
+
+#
+
+if [[ $EUID -ne 0 ]]; then
+echo "ERROR: This script must be run as root."
+echo "Try: sudo bash startup_script.sh"
+exit 1
+fi
+
+#
+
+# Red Hat credentials
+
+#
+
 RH_USER="${RH_USER:-}"
 RH_PASS="${RH_PASS:-}"
 
-echo "=== 1. Registering Red Hat Developer Subscription ==="
+echo
+echo "=== 1. Red Hat Subscription Registration ==="
 
-if [ -z "$RH_USER" ]; then
+if subscription-manager identity >/dev/null 2>&1; then
+echo "System already registered."
+else
+
+```
+if [[ -z "$RH_USER" ]]; then
     read -p "Enter Red Hat Developer Username: " RH_USER
 fi
 
-if [ -z "$RH_PASS" ]; then
+if [[ -z "$RH_PASS" ]]; then
     read -s -p "Enter Red Hat Developer Password: " RH_PASS
     echo
 fi
 
-echo "Registering system with subscription-manager..."
-if subscription-manager identity >/dev/null 2>&1; then
-    echo "System already registered."
-elif subscription-manager register \
-        --username "$RH_USER" \
-        --password "$RH_PASS" \
-        --auto-attach
-then
-    echo "SUCCESS: System registered and entitlements attached."
-else
-    echo "ERROR: Subscription registration failed."
-    exit 1
+echo "Registering system..."
+
+subscription-manager register \
+    --username "$RH_USER" \
+    --password "$RH_PASS" \
+    --auto-attach
+
+echo "Registration successful."
+```
+
 fi
 
+echo
+echo "=== 2. Updating Package Metadata ==="
 
-echo "=== 2. Installing System Prerequisites, Compilers, & Python 3.9 ==="
 dnf clean all
+dnf makecache
 
-dnf install python39 python39-pip git gcc libssh-devel -y
+echo
+echo "=== 3. Installing Packages ==="
 
-echo "=== 3. Creating Global Python 3.9 Virtual Environment ==="
+dnf install -y 
+python39 
+python39-pip 
+python39-devel 
+git 
+gcc 
+libssh-devel
 
-rm -rf ~/.automation/venv
+echo
+echo "=== 4. Creating Automation Virtual Environment ==="
+
 mkdir -p ~/.automation
 
-
-python3.9 -m venv ~/.automation/venv
-source ~/.automation/venv/bin/activate
-
-echo "=== 4. Upgrading Pip & Installing Core Python Libraries ==="
-pip install --upgrade pip
-pip install ansible paramiko secure-cookie ansible-pylibssh
-
-echo "=== 5. Installing Cisco IOS Core Automation Collection ==="
-ansible-galaxy collection install cisco.ios
-
-echo "=== 6. Configuring Shell Auto-Activation ==="
-if ! grep -q "source ~/.automation/venv/bin/activate" ~/.bashrc; then
-    echo "source ~/.automation/venv/bin/activate" >> ~/.bashrc
+if [[ -d ~/.automation/venv ]]; then
+rm -rf ~/.automation/venv
 fi
 
+python3.9 -m venv ~/.automation/venv
+
+source ~/.automation/venv/bin/activate
+
+echo
+echo "=== 5. Upgrading Pip ==="
+
+python -m pip install --upgrade pip
+
+echo
+echo "=== 6. Installing Python Libraries ==="
+
+pip install 
+ansible 
+paramiko 
+secure-cookie 
+ansible-pylibssh
+
+echo
+echo "=== 7. Installing Cisco Collection ==="
+
+ansible-galaxy collection install cisco.ios
+
+echo
+echo "=== 8. Configuring Auto-Activation ==="
+
+if ! grep -q ".automation/venv/bin/activate" ~/.bashrc; then
+echo "" >> ~/.bashrc
+echo "source ~/.automation/venv/bin/activate" >> ~/.bashrc
+fi
+
+echo
 echo "===================================================================="
-echo " SYSTEM READY: Registered, Python 3.9 active, Ansible/Cisco installed."
-echo " Native libssh acceleration (ansible-pylibssh) is compiled and ready."
-echo " You can now clone your project repositories anywhere on this node."
-echo " Run: 'source ~/.automation/venv/bin/activate' to start immediately."
+echo " BOOTSTRAP COMPLETE"
 echo "===================================================================="
+echo " Python Virtual Environment:"
+echo "   ~/.automation/venv"
+echo
+echo " Activate manually:"
+echo "   source ~/.automation/venv/bin/activate"
+echo
+echo " Installed:"
+echo "   - Python 3.9"
+echo "   - Ansible"
+echo "   - Paramiko"
+echo "   - ansible-pylibssh"
+echo "   - Cisco IOS Collection"
+echo "===================================================================="
+
