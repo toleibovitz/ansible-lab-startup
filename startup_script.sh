@@ -15,9 +15,9 @@ if [ -z "$RH_PASS" ]; then
 fi
 
 echo "Registering system with subscription-manager..."
-if sudo subscription-manager identity >/dev/null 2>&1; then
+if subscription-manager identity >/dev/null 2>&1; then
     echo "System already registered."
-elif sudo subscription-manager register \
+elif subscription-manager register \
         --username "$RH_USER" \
         --password "$RH_PASS" \
         --auto-attach
@@ -30,9 +30,9 @@ fi
 
 
 echo "=== 2. Installing System Prerequisites, Compilers, & Python 3.9 ==="
-sudo dnf clean all
+dnf clean all
 
-sudo dnf install python39 python39-pip git gcc libssh-devel -y
+dnf install python39 python39-pip git gcc libssh-devel -y
 
 echo "=== 3. Creating Global Python 3.9 Virtual Environment ==="
 
